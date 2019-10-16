@@ -1,0 +1,63 @@
+import csv
+import pandas as pd
+
+element=[]
+def csv_to_xlsx():
+    with open('original.csv', 'r', encoding='utf-8-sig',errors='ignore') as f:
+        read = csv.reader((line.replace('\0','空格') for line in f), delimiter=",")
+        l = 0
+        for line in read:
+           # print(line)
+            r = 0
+            for i in line:
+               # print(i)
+                element.append(i)
+            
+                r = r + 1
+            l = l + 1
+
+if __name__ == '__main__':
+    csv_to_xlsx()
+    
+
+
+for i in range(len(element)):
+    element[i]=element[i].split('|')  
+
+
+ 
+test=pd.DataFrame(data=element[1:],columns=element[0])
+
+
+test.index=test.ix[:,element[0].index('@timestamp')]
+
+
+cedian=pd.read_excel('SZ2算法使用测点列表.xlsx')
+
+
+
+cd=cedian['测点'].values.tolist()
+
+zwm=cedian['中文名'].values.tolist()
+
+
+dymc=[]
+
+
+for i in range(len(element[0])):
+    if element[0][i] in cd:
+        dymc.append(zwm[cd.index(element[0][i])])
+    else:
+        dymc.append('unknow')
+dymc=pd.DataFrame(data=dymc,index=element[0],columns=['中文名称'])
+
+test = pd.DataFrame(test.values.T, index=test.columns, columns=test.index)
+
+zwmc=dymc.pop('中文名称')
+
+test.insert(0,'中文名称', zwmc)
+
+test = pd.DataFrame(test.values.T, index=test.columns, columns=test.index)
+
+test.to_csv('Data.csv',encoding='gbk')
+
